@@ -8,11 +8,12 @@ m = 2e7 # m = M / M_sun: BH mass in solar units
 mdot = 0.7 # Mdot / Mdot_Edd - radiation dominated regime
 
 l = 10    # L / R_s
-l_x = 5   # L_x / R_s - testar = 1 p simplificação inicial e depois vemos no espaço paramétrico
-r_x = 6   # R_x / R_s
+l_x = 10   # L_x / R_s - testar = 1 p simplificação inicial e depois vemos no espaço paramétrico
+r_x = 10   # R_x / R_s
 
 
 va0 = c # [cm/s] Alfvén Speed (Khiali et al. 2015 page 38)
+# va0 = B_c / np.sqrt(4 * np.pi * rho)
 
 
 Mdot_Edd = 1.45e18 * m # [g s-1] (KGS15 page 4)
@@ -31,6 +32,7 @@ class Coronal_Description:
         self.mdot = mdot
         self.m = m
         self.Gamma = 1 / np.sqrt(2)
+        # self.Gamma = (1 + (va0 / c )**2 )**(-1/2)
         self.q = ( 1 - ( 3 / self.r_x )**(1/2) )**(1/4)
 
         
