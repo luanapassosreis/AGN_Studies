@@ -130,65 +130,6 @@ def rate_pg_cool(Ep, eps, nph):
     
     
     
-# ## Romero 2010a
-
-# def tshock(B,E):
-#     """Implements Eq. (10) of Romero et al. (2010a)"""
-#     eta = 0.1 # Efficiency of the acceleration [adim]
-
-#     return eta*e*c*B/E
-
-# def tsyn(B,E,m):
-#     """Implements Eq. (12) of Romero et al. (2010a)"""
-#     return (4/3)*((m_e/m)**3)*sigma_T*c*B*B/(m_e*c*c*8*np.pi) * (E/(m*c*c))
-
-# def tbre(n,Z,E):
-#     """Implements Eq. (17) of Romero et al. (2010a)"""
-
-#     return 4*n*Z*Z*r_0*r_0*alpha_f*c*(np.log(2*E/(m_e*c*c))-1/3)
-
-# def taccrece(E,lacc,B,rho):
-#     """Implements Eq. (7) of Khiali et al. (2015)"""
-#     va0 = B/(4*np.pi*rho)**0.5
-#     Gamma = 1/(2**0.5)
-#     va = va0*Gamma
-#     t0 = lacc/va # Alfvén time [s]
-#     E0 = m_e*c*c # * 6.241509e11 # erg to ev
-
-#     return 1.3e5 *  ((m_p/m_e)**(0.5)) * ((E/E0)**(-0.21735284)) * 1/t0
-
-
-
-
-## Hadronic Acceleration by Reconnection and Shock
-
-def tacc_p_rec(E, lacc, B, rho):
-    '''Eq. (6) of Khiali et al. (2015)'''
-    va0 = B / np.sqrt(4 * np.pi * rho)
-    Gamma = 1 / np.sqrt(2)
-    va = va0 * Gamma # [cm s-1] Alfvén velocity
-    t0 = lacc / va # [s] Alfvén time
-    E0 = mp*c*c # [erg]
-
-    return 1.3e5 * (E/E0)**(-0.1) * t0**(-1)
-    
-
-def tacc_shock(B, E):
-    '''Eq.(9) of Khiali et al. 2015 / Eq. (10) of Romero et al. (2010a)'''
-    eta = 0.1 # Efficiency of the acceleration [adim]
-
-    return (eta*qe*c*B) / E
-
-
-def t_pp(n, E):
-    '''Eq. (19) of Khiali et al. (2015)'''
-    L = np.log(E/ (1*TeV) )
-    E_th = 280*MeV # Proton threshold kinetic energy for neutral pion production
-    sigma_pp = (34.3 + 1.88*L + 0.25*L**2) * (1 - (E_th/E)**4 )**2 * 1e-27 # [cm2] 1 millibarn = 1e-27 cm^2
-    k_pp = 0.5 # Total inelasticity of the process
-    
-    return n*c*sigma_pp*k_pp
-
 
 ## Photomeson
 
@@ -255,6 +196,67 @@ def t_pgamma(n, E):
 
 
 
+    
+    
+    
+# ## Romero 2010a
+
+# def tshock(B,E):
+#     """Implements Eq. (10) of Romero et al. (2010a)"""
+#     eta = 0.1 # Efficiency of the acceleration [adim]
+
+#     return eta*e*c*B/E
+
+# def tsyn(B,E,m):
+#     """Implements Eq. (12) of Romero et al. (2010a)"""
+#     return (4/3)*((m_e/m)**3)*sigma_T*c*B*B/(m_e*c*c*8*np.pi) * (E/(m*c*c))
+
+# def tbre(n,Z,E):
+#     """Implements Eq. (17) of Romero et al. (2010a)"""
+
+#     return 4*n*Z*Z*r_0*r_0*alpha_f*c*(np.log(2*E/(m_e*c*c))-1/3)
+
+# def taccrece(E,lacc,B,rho):
+#     """Implements Eq. (7) of Khiali et al. (2015)"""
+#     va0 = B/(4*np.pi*rho)**0.5
+#     Gamma = 1/(2**0.5)
+#     va = va0*Gamma
+#     t0 = lacc/va # Alfvén time [s]
+#     E0 = m_e*c*c # * 6.241509e11 # erg to ev
+
+#     return 1.3e5 *  ((m_p/m_e)**(0.5)) * ((E/E0)**(-0.21735284)) * 1/t0
+
+
+
+
+## Hadronic Acceleration by Reconnection and Shock
+
+def tacc_p_rec(E, lacc, B, rho):
+    '''Eq. (6) of Khiali et al. (2015)'''
+    va0 = B / np.sqrt(4 * np.pi * rho)
+    Gamma = 1 / np.sqrt(2)
+    va = va0 * Gamma # [cm s-1] Alfvén velocity
+    t0 = lacc / va # [s] Alfvén time
+    E0 = mp*c*c # [erg]
+
+    return 1.3e5 * (E/E0)**(-0.1) * t0**(-1)
+    
+
+def tacc_shock(B, E):
+    '''Eq.(9) of Khiali et al. 2015 / Eq. (10) of Romero et al. (2010a)'''
+    eta = 0.1 # Efficiency of the acceleration [adim]
+
+    return (eta*qe*c*B) / E
+
+
+def t_pp(n, E):
+    '''Eq. (19) of Khiali et al. (2015)'''
+    L = np.log(E/ (1*TeV) )
+    E_th = 280*MeV # Proton threshold kinetic energy for neutral pion production
+    sigma_pp = (34.3 + 1.88*L + 0.25*L**2) * (1 - (E_th/E)**4 )**2 * 1e-27 # [cm2] 1 millibarn = 1e-27 cm^2
+    k_pp = 0.5 # Total inelasticity of the process
+    
+    return n*c*sigma_pp*k_pp
 
 
 
