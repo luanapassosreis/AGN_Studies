@@ -1,8 +1,9 @@
 from astro_constants import *
-
 import numpy as np
 
-# erg = 1.602177e-12 # Convert eV to erg
+'''
+cgs units or normalized regarding M_sun, R_s & Mdot_Edd
+'''
 
 m = 2e7 # m = M / M_sun: BH mass in solar units
 mdot = 0.7 # Mdot / Mdot_Edd - radiation dominated regime
@@ -11,18 +12,14 @@ l = 10    # L / R_s
 l_x = 10   # L_x / R_s - testar = 1 p simplificação inicial e depois vemos no espaço paramétrico
 r_x = 10   # R_x / R_s
 
-
 va0 = c # [cm/s] Alfvén Speed (Khiali et al. 2015 page 38)
 # va0 = B_c / np.sqrt(4 * np.pi * rho)
-
 
 Mdot_Edd = 1.45e18 * m # [g s-1] (KGS15 page 4)
 R_s = 2.96e5 * m # [cm] = 2GM/c^2 (KGS15 page 4)
 
-
 # Gamma = (1 + (va0 / c )**2 )**(-1/2) # KGS15 page 4
 # q = ( 1 - ( 3 * R_s / R_x)**(1/2) )**(1/4) # KGS15 page 4
-
 
 class Coronal_Description:
     def __init__(self, r_x, l, l_x, mdot, m):
