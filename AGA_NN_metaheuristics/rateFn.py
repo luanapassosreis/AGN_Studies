@@ -185,8 +185,6 @@ def Psyn_tot(Ee,B):
     return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
 
 
-
-
 def PIC_tot(Ee,Uph):
     return 4/3 * sigmaT * c * Uph * (Ee/mec2)**2
 
