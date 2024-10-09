@@ -39,7 +39,6 @@ def Ppsyn_tot(Ep,B):
     return 4/3 * (me / mp)**2 * sigmaT * c * UB * (Ep/mpc2)**2
 
 
-
 def Psyn_tot(Ee,B):
     '''
     equivalent to equation (5) of Romero et al. 2010
@@ -53,7 +52,7 @@ def Psyn_tot(Ee,B):
 
 ## leptons
 
-def rate_synch_e(B, Ee, m):
+def rate_synch_e(B, Ee):
     '''Eq. (5) of Romero et al. (2010)'''
     UB = B**2 / (8*np.pi)
     return 4/3 * sigmaT * c * UB * Ee / (mec2)**2
@@ -63,10 +62,10 @@ def rate_SSC_e():
     
     return
 
-def rate_bremss_e(n, Z, E):
+def rate_bremss_e(n, Z, Ee):
     '''Eq. (17) of Romero et al. (2010a)'''
     
-    return 4*n*Z*Z*re*re*alpha_fine*c*(np.log(2*E / (me*c*c)) - 1/3)
+    return 4 * n * Z**2 * re**2 * alpha_fine * c * (np.log(2*Ee / (mec2)) - 1/3)
 
 
 ## hadrons
