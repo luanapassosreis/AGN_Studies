@@ -28,14 +28,36 @@ def timeacc_drift(E, B, va):
 
 
 
+## apagar
+
+def Ppsyn_tot(Ep,B):
+    '''
+    equivalent to equation (5) of Romero et al. 2010
+    '''
+    
+    UB = B**2/(8*np.pi)
+    return 4/3 * (me / mp)**2 * sigmaT * c * UB * (Ep/mpc2)**2
+
+
+
+def Psyn_tot(Ee,B):
+    '''
+    equivalent to equation (5) of Romero et al. 2010
+    '''
+    
+    UB = B**2/(8*np.pi)
+    return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
+
+
 ############ losses
 
 ## leptons
 
-def rate_synch_e(B, E, m):
-    '''Eq. (12) of Romero et al. (2010a)'''
-    
-    return (4/3)*((me/m)**3)*sigmaT*c*B*B / (me*c*c*8*np.pi) * (E/(m*c*c))
+def rate_synch_e(B, Ee, m):
+    '''Eq. (5) of Romero et al. (2010)'''
+    UB = B**2 / (8*np.pi)
+    return 4/3 * sigmaT * c * UB * Ee / (mec2)**2
+    # return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
 
 def rate_SSC_e():
     
@@ -49,10 +71,11 @@ def rate_bremss_e(n, Z, E):
 
 ## hadrons
 
-def rate_synch_p(B, E):
-    '''Eq. (12) of Romero et al. (2010a)'''
-    
-    return (4/3)*((me/mp)**3)*sigmaT*c*B*B / (me*c*c*8*np.pi) * (E/(mp*c*c))
+def rate_synch_p(B, Ep):
+    '''Eq. (5) of Romero et al. (2010)'''
+    UB = B**2 / (8*np.pi)
+    return (4/3) * (me/mp)**3 * sigmaT * c * UB * Ep / (mec2 * mpc2)
+    # return (4/3) * (me / mp)**2 * sigmaT * c * UB * (Ep/mpc2)**2
 
 def rate_p_p(n, E):
     '''Eq. (19) of Khiali et al. (2015)'''
