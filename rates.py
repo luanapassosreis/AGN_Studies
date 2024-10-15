@@ -28,26 +28,6 @@ def timeacc_drift(E, B, va):
 
 
 
-## apagar
-
-def Ppsyn_tot(Ep,B):
-    '''
-    equivalent to equation (5) of Romero et al. 2010
-    '''
-    
-    UB = B**2/(8*np.pi)
-    return 4/3 * (me / mp)**2 * sigmaT * c * UB * (Ep/mpc2)**2
-
-
-def Psyn_tot(Ee,B):
-    '''
-    equivalent to equation (5) of Romero et al. 2010
-    '''
-    
-    UB = B**2/(8*np.pi)
-    return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
-
-
 ############ losses
 
 ## leptons
