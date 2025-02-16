@@ -254,7 +254,7 @@ def Eps_ff(n,T,eps):
     return  6.8e-38 * n**2 * T**(-1/2)* np.exp( - h * nu / kB / T )
             
 
-def  IntOm_Inu(phi,theta,I_nu):
+def IntOm_Inu(phi,theta,I_nu):
     '''
     Gives the integral of the specific intensity I_nu,
     over phi and theta, asuming homogeneous I_nu
