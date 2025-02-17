@@ -6,16 +6,6 @@ import numpy as np
 cgs units or normalized regarding M_sun, R_s & Mdot_Edd
 '''
 
-# ============================================
-# =========== Energy [ergs] ================== 
-# ============================================
-
-Ep = np.logspace(6, 20, num=50) * eV  # [2,20]
-Ee = np.logspace(2, 15, num=50) * eV  # [2,15]
-
-Ep_drift = np.logspace(17.72, 20, num=50) * eV  # 5.23e+17 = 10^17.72
-Ee_drift = np.logspace(14.46, 20, num=50) * eV  # 2.85e+14 = 10^14.46
-
 
 # =========================================
 # =========== the source ================== 

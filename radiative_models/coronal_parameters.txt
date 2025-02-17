@@ -1,0 +1,30 @@
+Coronal Magnetic Field:
+ B_c = 1.0478E+04 G
+
+Coronal Particle Number Density:
+ n_c = 3.4392E+10 cm-3
+
+Coronal Temperature:
+ T_c = 2.5282E+09 K
+
+Width of the current sheet:
+ delta_RX = 1.6649E+11 cm
+
+Reconnection Power:
+ wdot_B = 5.9912E+42 erg s-1
+
+New entry:
+Rho:
+ rho = 5.7524E-14 g cm-3
+
+v_a0:
+ v_a0 = 1.2324E+10 cm s-1
+
+va:
+ va = 8.7146E+09 cm s-1
+
+va/c:
+ va/c = 2.9069E-01 
+
+v_a0/c:
+ v_a0/c = 4.1110E-01

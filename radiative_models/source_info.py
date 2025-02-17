@@ -6,17 +6,6 @@ import numpy as np
 cgs units or normalized regarding M_sun, R_s & Mdot_Edd
 '''
 
-# ============================================
-# =========== Energy [ergs] ================== 
-# ============================================
-
-Ep = np.logspace(6, 20, num=50) * eV  # [2,20]
-Ee = np.logspace(2, 15, num=50) * eV  # [2,15]
-
-Ep_drift = np.logspace(17.72, 20, num=50) * eV  # 5.23e+17 = 10^17.72
-Ee_drift = np.logspace(14.46, 20, num=50) * eV  # 2.85e+14 = 10^14.46
-
-
 
 # =========================================
 # =========== the source ================== 
@@ -37,24 +26,6 @@ R_s = 2.96e5 * m # [cm] = 2GM/c^2 (KGS15 page 4)
 
 # Gamma = (1 + (va0 / c )**2 )**(-1/2) # KGS15 page 4
 # q = ( 1 - ( 3 * R_s / R_x)**(1/2) )**(1/4) # KGS15 page 4
-
-
-# ============================================================================
-# ========================= Define Particle Distribution =====================
-# ============================================================================
-
-
-def create_particle_distribution():
-    """Create a power-law particle distribution."""
-    amplitude = 1e36 * u.Unit("1/eV")
-    e_0 = 1 * u.TeV  # Reference energy
-    alpha = -2  # Power-law index
-    return PowerLaw(amplitude, e_0, alpha)
-
-
-
-
-
 
 class Coronal_Description:
     def __init__(self, r_x, l, l_x, mdot, m):
