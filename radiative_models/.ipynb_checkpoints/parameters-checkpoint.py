@@ -60,8 +60,8 @@ with open(output_filename, "a") as file:  # "a" mode appends to the file
     file.write(f'Rho:\n rho = {rho:.4E} g cm-3\n\n')
     file.write(f'v_a0:\n v_a0 = {v_a0:.4E} cm s-1\n\n')
     file.write(f'va:\n va = {va:.4E} cm s-1\n\n')
-    file.write(f'va/c:\n va/c = {va/c:.4E} \n\n')
-    file.write(f'v_a0/c:\n v_a0/c = {v_a0/c:.4E}\n')
+    file.write(f'va/c:\n va/c = {va/c:.4f} \n\n')
+    file.write(f'v_a0/c:\n v_a0/c = {v_a0/c:.4f}\n')
 
 print(f"Output appended to {output_filename}")
 
