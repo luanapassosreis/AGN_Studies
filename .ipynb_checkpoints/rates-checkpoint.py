@@ -65,9 +65,34 @@ def rate_p_p(n, E):
     
     return n*c*sigma_pp*k_pp
 
-def rate_p_gamma():
+def rate_p_gamma(Ep, eps, nph):
+    Eth_pg = 145 * 1e6 * eV
+    k1 = 0.2
+    s1 = 340 * 1e-6 * barn
+    k2 = 0.6
+    s2 = 120 * 1e-6 * barn
+    C1 = -.5*k1*s1*(200*MeV)**2
+    C2 = -.5*k2*s2*(500*MeV)**2 + .5*k1*s1*(500*MeV)**2 - .5*k1*s1*(200*MeV)**2
     
-    return
+    def II(eps,Ep):
+        
+        if( (2*eps*Ep /mpc2) < (200*MeV) ):
+            return 0.
+        
+        elif( ( (200*MeV)<=(2*eps*Ep /mpc2) ) & ( (2*eps*Ep /mpc2)<(500*MeV) ) ):
+            return k1*s1/2 *(2*eps*Ep/mpc2)**2 + C1
+        
+        elif( (2*eps*Ep/mpc2) > 500*MeV ):
+            return k2*s2/2 *(2*eps*Ep/mpc2)**2 + C2
+    
+    SSum = np.zeros(np.size(Ep))
+    deps = np.diff(eps)
+
+    for j in range(np.size(Ep)):
+        for i in range(np.size(deps)):
+            if(eps[i] > (Eth_pg * mpc2 / 2 / Ep[j]) ):
+                SSum[j] = SSum[j] + mp**2 * c**5 / 2 / Ep[j]**2 * deps[i] * nph[i] / eps[i]**2 * II(eps[i], Ep[j])                    
+    return SSum
 
 def rate_bethe_heitler():
     

@@ -489,7 +489,7 @@ def rate_pg(Ep, eps, nph):
         for i in range(np.size(deps)):
             if(eps[i] > (Eth_pg * mpc2 / 2 / Ep[j]) ):
                 SSum[j] = SSum[j] + mp**2 * c**5 / 2 / Ep[j]**2 * deps[i] * nph[i] / eps[i]**2 * II(eps[i], Ep[j])                    
-    return  SSum
+    return SSum
     
     
     
