@@ -4,6 +4,7 @@ from source_parameters import *
 from scipy.integrate import quad
 from scipy import special
 import numpy as np
+import math
 
 #import matplotlib.pyplot as plt
 #import os
@@ -94,6 +95,55 @@ def rate_p_gamma(Ep, eps, nph):
                 SSum[j] = SSum[j] + mp**2 * c**5 / 2 / Ep[j]**2 * deps[i] * nph[i] / eps[i]**2 * II(eps[i], Ep[j])                    
     return SSum
 
-def rate_bethe_heitler():
+
+def rate_pg_cool(Ep, eps, nph):
     
-    return
+    gp = Ep / mpc2  
+    deps = np.diff(eps)
+    dleps = np.log10( eps[1] / eps[0] )
+    Ieps = np.zeros_like(gp) + small
+    epsth = 145*MeV 
+    
+    sigma1 = 340 * 1e-6*barn
+    K1 = 0.2
+    sigma2 = 120 * 1e-6*barn
+    K2 = 0.6
+    
+    def fI(eps, gp):
+        x = 2* eps * gp
+        def I1(x):
+            return sigma1*K1 * 0.5* x**2
+        def I2(x):
+            return sigma2*K2 * 0.5* x**2
+        
+        if( x < (200*MeV) ):
+            return 0.
+        elif( (x >= 200*MeV) and (x < 500*MeV)  ):
+            return I1(x) - I1(200*MeV)
+        elif( x>= 500*MeV ):
+            return I1(500*MeV) - I1(200*MeV) + I2(x) - I2(500*MeV)
+    
+    for i in range(len(gp)):
+        eps_inf = epsth / (2*gp[i] )
+        
+        if( (eps_inf >= eps[0] ) and ( eps_inf < eps[len(deps)] ) ):
+            j0 = int( math.ceil( np.log10( eps_inf / eps[0] ) / dleps ) )
+            for j in range(j0,len(deps)):
+                Ieps[i] = Ieps[i] + deps[j]*nph[j] / (eps[j]**2) * fI(eps[j], gp[i])
+    
+    return c / (2 * gp**2) * Ieps 
+
+
+def rate_bethe_heitler(Ep, eps, nph):
+    
+    gp = Ep / mpc2
+    deps = np.diff(eps)
+    dleps = np.log10( eps[1] / eps[0] )
+    Ieps = np.zeros_like(gp) + small
+    
+    ## de dn_x/de e^2 
+    ## e sigma e de
+    
+    
+    
+    return c / (2 * gp**2) * Ieps
