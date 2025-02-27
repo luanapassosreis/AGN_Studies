@@ -33,20 +33,65 @@ def timeacc_drift(E, B, va):
 
 ## leptons
 
+
+def rate_bremss_e(n, Z, Ee):
+    '''Eq. (17) of Romero et al. (2010a)'''
+    
+    return 4 * n * Z**2 * re**2 * alpha_fine * c * (np.log(2*Ee / (mec2)) - 1/3)
+
+
 def rate_synch_e(B, Ee):
     '''Eq. (5) of Romero et al. (2010)'''
     UB = B**2 / (8*np.pi)
     return 4/3 * sigmaT * c * UB * Ee / (mec2)**2
     # return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
 
-def rate_SSC_e():
-    
-    return
 
-def rate_bremss_e(n, Z, Ee):
-    '''Eq. (17) of Romero et al. (2010a)'''
+
+def rate_IC(Ee,eps,nph):
     
-    return 4 * n * Z**2 * re**2 * alpha_fine * c * (np.log(2*Ee / (mec2)) - 1/3)
+    def F(eps,nph,Ee):
+        Gamma = 4. * eps * Ee / mec2**2
+        e1min = eps
+        e1max = Gamma * Ee / (1. + Gamma)
+        dle1 = 0.01
+        le1 = np.arange(np.log10(e1min/eV), np.log10(e1max/eV), dle1) #log(E/eV)
+        e1 = 10**le1 * eV
+        de1 = np.diff(e1)
+        
+        CC =  2 * np.pi * re**2 * me**2 * c**5 
+        
+        Sum = 0.
+        for j in range(np.size(de1)):        
+            q = e1[j]/(Gamma*(Ee-e1[j]))
+            Fq = 2.*q* np.log(q) + (1+2*q)*(1-q) +.5*(1-q)*(Gamma*q)**2/(1+Gamma*q)
+            Sum = Sum + de1[j] * (e1[j] - eps) * CC / Ee**2 * nph / eps * Fq
+
+        return Sum
+    
+    deps = np.diff(eps)
+    SSum=0.
+    
+    tm1 =  np.zeros_like(Ee)
+    SSum = np.zeros_like(Ee)
+    print('\n\n Calculating IC rate (accounting for KN regime):\n')
+    for j in range(np.size(tm1)):
+        for i in range(np.size(deps)):
+            SSum[j] = SSum[j] + F(eps[i],nph[i],Ee[j]) * deps[i] 
+            #print('eps = %1.3e eV'%(eps/eV))
+    
+    
+    tm1 = (1. / Ee) * SSum
+    
+    return tm1
+
+
+
+
+
+
+
+
 
 
 ## hadrons
@@ -147,3 +192,70 @@ def rate_bethe_heitler(Ep, eps, nph):
     
     
     return c / (2 * gp**2) * Ieps
+
+
+
+#### maybe wrong
+
+
+# Define cross-section function for pγ interactions
+def sigma_pg(eps_prime):
+    """ Cross-section function for pγ interactions. """
+    sigma1 = 340 * 1e-6 * barn  # Peak cross-section
+    K1 = 0.2  
+    sigma2 = 120 * 1e-6 * barn
+    K2 = 0.6  
+
+    if eps_prime < 200 * MeV:
+        return 0.
+    elif 200 * MeV <= eps_prime < 500 * MeV:
+        return sigma1 * K1 * 0.5 * (eps_prime**2 - (200 * MeV)**2)
+    else:
+        return (sigma1 * K1 * 0.5 * ((500 * MeV)**2 - (200 * MeV)**2) +
+                sigma2 * K2 * 0.5 * (eps_prime**2 - (500 * MeV)**2))
+
+# Function to integrate over the cross-section
+def integrate_sigma(eps_prime_min, eps_prime_max):
+    """ Integrates eps' * sigma_pg(eps') from eps_prime_min to eps_prime_max """
+    return quad(lambda eps_prime: eps_prime * sigma_pg(eps_prime), eps_prime_min, eps_prime_max, limit=100)[0]
+
+# Function to compute the inverse bremsstrahlung cooling time
+def rate_bth_cool(Ep, eps, nph):
+    """
+    Computes the inverse bremsstrahlung cooling rate.
+
+    Parameters:
+    Ep : array-like
+        Proton energy in erg.
+    eps : array-like
+        Photon energy array in erg.
+    nph : array-like
+        Photon number density per energy bin.
+
+    Returns:
+    Array with cooling rate values.
+    """
+    
+    eps_th = 2 * MeV
+    
+    gp = Ep / mpc2  # Proton Lorentz factor
+    deps = np.diff(eps)
+    dleps = np.log10(eps[1] / eps[0])
+
+    Ieps = np.zeros_like(gp) + 1e-30  # Avoid division by zero
+
+    for i in range(len(gp)):
+        eps_inf = eps_th / (2 * gp[i])
+        
+        if eps_inf >= eps[0] and eps_inf < eps[-1]:
+            j0 = int(math.ceil(np.log10(eps_inf / eps[0]) / dleps))
+            for j in range(j0, len(deps)):
+                eps_prime_min = eps_th
+                eps_prime_max = 2 * gp[i] * eps[j]
+                
+                # Compute the integral of eps' * sigma_pg(eps') over the given range
+                integral_sigma = integrate_sigma(eps_prime_min, eps_prime_max)
+
+                Ieps[i] += deps[j] * nph[j] / (eps[j]**2) * integral_sigma
+
+    return c / (gp**2) * Ieps

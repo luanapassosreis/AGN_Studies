@@ -419,7 +419,7 @@ def rL(m,E,q,B):
     '''
     gives the gyroradius as rL (larmor radius) as a function of:
     m: particle mass
-    E: particle toral energy (kinetic + rest mass)
+    E: particle total energy (kinetic + rest mass)
     q: particle charge
     B: background magnetic field
     '''

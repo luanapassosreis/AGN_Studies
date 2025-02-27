@@ -1,37 +1,46 @@
 from astro_constants import *
-from source_parameters import *
 
 from scipy.integrate import quad
 from scipy import special
 import numpy as np
 import math
 
-#import matplotlib.pyplot as plt
-#import os
-# import math
-# from tqdm import tqdm
+'''
+XL22: Xu & Lazarian
+'''
 
 
-############ acceleration
+# ============================================
+# =========== Timescales [s] ================= 
+# ============================================
 
-def time_acc_regime3(va, delta_RX):
+
+def t_acc_fermi(va, delta_RX):
+    '''ref: Eqs.(69) & (38) from XL22.
+    timescale for Fermi particle acceleration (from reconnection)'''
+    
     v_in = 0.05 * va
     beta_in = v_in / c
     d_ur = 2 * beta_in * ( 3 * beta_in**2 + 3*beta_in + 1 ) / ( 3 * (beta_in + 0.5) * (1 - beta_in**2) )
     
     return 4 * delta_RX / (c * d_ur)
 
-def timeacc_drift(E, B, va):
-    '''Eq.(7) of Del Valle, de Gouveia Dal Pino & Kowal 2016 e de Gouveia Dal Pino & Kowal 2015'''
+
+def t_acc_drift(E, B, va):
+    '''ref: Eq.(7) from M. V. del Valle, E. M. de Gouveia Dal Pino & G. Kowal 2017 e de Gouveia Dal Pino & Kowal 2015.
+    timescale for Drift particle acceleration (from reconnection)'''
+    
     v_rec = 0.05 * va
     
     return E / (qe*B*v_rec)
 
 
 
-############ losses
 
-## leptons
+
+# ============================================
+# ======= Rates [s-1] = 1 / timescale ======== 
+# ============================================
 
 
 def rate_bremss_e(n, Z, Ee):
@@ -40,13 +49,30 @@ def rate_bremss_e(n, Z, Ee):
     return 4 * n * Z**2 * re**2 * alpha_fine * c * (np.log(2*Ee / (mec2)) - 1/3)
 
 
-def rate_synch_e(B, Ee):
+def rate_synch(E, B, m):
     '''Eq. (5) of Romero et al. (2010)'''
+    
     UB = B**2 / (8*np.pi)
-    return 4/3 * sigmaT * c * UB * Ee / (mec2)**2
-    # return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
+    
+    return 4/3 * sigmaT * c * (UB/mec2) * (me/m)**3 * E/(m * c**2)
+    
 
+def rate_IC(Ee, eps, nph):
+    
+    def f(q):
+    
+        return
+    
+    
+    return
 
+    
+    
+    
+    
+    
+    
+    
 
 def rate_IC(Ee,eps,nph):
     
@@ -92,15 +118,6 @@ def rate_IC(Ee,eps,nph):
 
 
 
-
-
-## hadrons
-
-def rate_synch_p(B, Ep):
-    '''Eq. (5) of Romero et al. (2010)'''
-    UB = B**2 / (8*np.pi)
-    return (4/3) * (me/mp)**3 * sigmaT * c * UB * Ep / (mec2 * mpc2)
-    # return (4/3) * (me / mp)**2 * sigmaT * c * UB * (Ep/mpc2)**2
 
 def rate_p_p(n, E):
     '''Eq. (19) of Khiali et al. (2015)'''
@@ -259,3 +276,17 @@ def rate_bth_cool(Ep, eps, nph):
                 Ieps[i] += deps[j] * nph[j] / (eps[j]**2) * integral_sigma
 
     return c / (gp**2) * Ieps
+
+
+
+
+
+
+
+# ============================================
+# ======= Power Emitted [?]  ======== 
+# ============================================
+
+
+# def P_synch():    
+    # return 4/3 * sigmaT * c * UB * (Ee/mec2)**2
