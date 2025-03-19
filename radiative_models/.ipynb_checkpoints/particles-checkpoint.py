@@ -1,4 +1,6 @@
 from astro_constants import *
+from source_info import *
+from parameters import *
 
 from scipy.integrate import quad
 from scipy import special
@@ -35,7 +37,66 @@ def t_acc_drift(E, B, va):
     return E / (qe*B*v_rec)
 
 
+# ============================================
+# ======= Photon Fields [erg-1 cm-3] ========= 
+# ============================================
 
+
+## OUV
+
+eps_min = (12398/2500) * eV # [erg] 1 angstrom = 12398 eV
+eps_max = (12398/1050) * eV # [erg] 
+    
+eps_OUV = np.logspace(np.log10(eps_min), np.log10(eps_max), num=100)
+
+def n_OUV(eps):
+    """Isotropic OUV photon field density [cm-3 erg-1]."""
+    r_OUV = 100 * R_s  # OUV radius [cm]
+
+    ## Energy density
+    L_2keV = 7e43  # Luminosity at 2 keV [erg/s] (Lx)
+    log_L_2500A = (1 / 0.760) * (np.log10(L_2keV) - 3.508)
+    L_2500A = 10**log_L_2500A  # Luminosity at 2500 Angstroms [erg/s]
+    U_OUV = L_2500A / (4 * np.pi * c * r_OUV**2)  # Energy density [erg/cm^3]
+
+    dnOUVde = np.zeros_like(eps)  # Initialize the array to store the results
+    
+    # dnOUVde = U_OUV * eps**(-1)
+    dnOUVde = U_OUV * eps**(-2)
+
+    return dnOUVde
+
+nph_OUV = n_OUV(eps_OUV) # [cm^{-3} erg^{-1}]
+
+
+
+
+## X-Rays
+
+eps_x = np.logspace(np.log10(2 * keV), np.log10(200 * keV), num=100)  # [eV to MeV]
+
+def n_ph(eps):
+    """Isotropic photon field density [cm-3 erg-1].
+    Eq. (4) from Mbarek et al. 2023."""
+    r_c = 10 * R_s  # [cm] coronal size
+    L_x = 7 * 10**43  # [erg s^-1]
+    epsilon_0 = 7 * keV  # [erg] (compton hump energy)
+    
+    U_x = L_x / (4 * np.pi * c * r_c**2)  # [erg cm^-3]
+    
+    dnxde = np.zeros_like(eps)  # Initialize the array to store the results
+    
+    for i in range(len(eps)):
+        if eps[i] < (20 * keV):
+            dnxde[i] = U_x * epsilon_0**(-2)
+        elif (20 * keV) <= eps[i] <= (200 * keV):
+            dnxde[i] = U_x * eps[i]**(-2)
+        else:
+            0.
+    
+    return dnxde
+
+nph_x = n_ph(eps_x)  # [cm^{-3} erg^{-1}]
 
 
 # ============================================
@@ -57,7 +118,20 @@ def rate_synch(E, B, m):
     return 4/3 * sigmaT * c * (UB/mec2) * (me/m)**3 * E/(m * c**2)
     
 
+def rate_IC(Ee, eps, nph):
+    
+    def f(q):
+    
+        return
+    
+    
+    return
 
+    
+    
+    
+    
+    
 
 def rate_IC(Ee,eps,nph):
     
