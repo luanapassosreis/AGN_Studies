@@ -1,6 +1,6 @@
 from astro_constants import *
-from source_info import *
-from parameters import *
+# from source_info import *
+from source_parameters import *
 
 from scipy.integrate import quad
 from scipy import special
@@ -128,9 +128,6 @@ def rate_IC(Ee, eps, nph):
         log_e = np.arange(np.log10(emin/eV), np.log10(emax/eV), dlog_e) #log(E/eV) photon energy array in log
         energies = 10**log_e * eV  # photon energy array in linear energy units (eV)
         de = np.diff(energies)  # small energy differences
-        
-        # if emax <= emin:
-        #     print(f"Invalid energy range: emin={emin}, emax={emax}")
 
         cte = (2 * np.pi * re**2 * me**2 * c**5) / Ee**2
 
@@ -154,12 +151,57 @@ def rate_IC(Ee, eps, nph):
             
     rate = (1 / Ee) * SSum
     
-    
-    if np.any(nph <= 0):
-        print("Warning: Some photon densities are zero or negative")
+    return rate
 
     
-    return rate
+    
+    
+    
+    
+
+def rate_IC_Juan(Ee,eps,nph):
+    
+    def F(eps,nph,Ee):
+        Gamma = 4. * eps * Ee / mec2**2
+        e1min = eps
+        e1max = Gamma * Ee / (1. + Gamma)
+        dle1 = 0.01
+        le1 = np.arange(np.log10(e1min/eV), np.log10(e1max/eV), dle1) #log(E/eV)
+        e1 = 10**le1 * eV
+        de1 = np.diff(e1)
+        
+        CC =  2 * np.pi * re**2 * me**2 * c**5 
+        
+        Sum = 0.
+        for j in range(np.size(de1)):        
+            q = e1[j]/(Gamma*(Ee-e1[j]))
+            Fq = 2.*q* np.log(q) + (1+2*q)*(1-q) +.5*(1-q)*(Gamma*q)**2/(1+Gamma*q)
+            Sum = Sum + de1[j] * (e1[j] - eps) * CC / Ee**2 * nph / eps * Fq
+
+        return Sum
+    
+    deps = np.diff(eps)
+    SSum=0.
+    
+    tm1 =  np.zeros_like(Ee)
+    SSum = np.zeros_like(Ee)
+    print('\n\n Calculating IC rate (accounting for KN regime):\n')
+    for j in range(np.size(tm1)):
+        for i in range(np.size(deps)):
+            SSum[j] = SSum[j] + F(eps[i],nph[i],Ee[j]) * deps[i] 
+            #print('eps = %1.3e eV'%(eps/eV))
+    
+    
+    tm1 = (1. / Ee) * SSum
+    
+    return tm1
+
+
+
+
+
+
+
 
 
 def rate_p_p(n, E):

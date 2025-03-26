@@ -14,7 +14,6 @@ cgs units or normalized regarding M_sun, R_s & Mdot_Edd
 m = 2e7 # m = M / M_sun: BH mass in solar units
 mdot = 0.7 # Mdot / Mdot_Edd - radiation dominated regime
 
-l_values = [5, 10, 15, 20, 25]
 l = 10    # L / R_s
 l_x = 10   # L_x / R_s - testar = 1 p simplificação inicial e depois vemos no espaço paramétrico
 r_x = 10   # R_x / R_s

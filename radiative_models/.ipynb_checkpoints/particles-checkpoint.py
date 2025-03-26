@@ -61,7 +61,6 @@ def n_OUV(eps):
 
     dnOUVde = np.zeros_like(eps)  # Initialize the array to store the results
     
-    # dnOUVde = U_OUV * eps**(-1)
     dnOUVde = U_OUV * eps**(-2)
 
     return dnOUVde
@@ -75,7 +74,7 @@ nph_OUV = n_OUV(eps_OUV) # [cm^{-3} erg^{-1}]
 
 eps_x = np.logspace(np.log10(2 * keV), np.log10(200 * keV), num=100)  # [eV to MeV]
 
-def n_ph(eps):
+def n_Xrays(eps):
     """Isotropic photon field density [cm-3 erg-1].
     Eq. (4) from Mbarek et al. 2023."""
     r_c = 10 * R_s  # [cm] coronal size
@@ -96,7 +95,8 @@ def n_ph(eps):
     
     return dnxde
 
-nph_x = n_ph(eps_x)  # [cm^{-3} erg^{-1}]
+nph_x = n_Xrays(eps_x)  # [cm^{-3} erg^{-1}]
+
 
 
 # ============================================
@@ -120,62 +120,46 @@ def rate_synch(E, B, m):
 
 def rate_IC(Ee, eps, nph):
     
-    def f(q):
-    
-        return
-    
-    
-    return
-
-    
-    
-    
-    
-    
-
-def rate_IC(Ee,eps,nph):
-    
-    def F(eps,nph,Ee):
-        Gamma = 4. * eps * Ee / mec2**2
-        e1min = eps
-        e1max = Gamma * Ee / (1. + Gamma)
-        dle1 = 0.01
-        le1 = np.arange(np.log10(e1min/eV), np.log10(e1max/eV), dle1) #log(E/eV)
-        e1 = 10**le1 * eV
-        de1 = np.diff(e1)
+    def integral_right(Ee, eps, nph):
+        gamma = 4 * eps * Ee / mec2**2
+        emin = eps
+        emax = (gamma * Ee) / (1 + gamma)
+        dlog_e = 0.01  # logarithmic step size in energy
+        log_e = np.arange(np.log10(emin/eV), np.log10(emax/eV), dlog_e) #log(E/eV) photon energy array in log
+        energies = 10**log_e * eV  # photon energy array in linear energy units (eV)
+        de = np.diff(energies)  # small energy differences
         
-        CC =  2 * np.pi * re**2 * me**2 * c**5 
-        
-        Sum = 0.
-        for j in range(np.size(de1)):        
-            q = e1[j]/(Gamma*(Ee-e1[j]))
-            Fq = 2.*q* np.log(q) + (1+2*q)*(1-q) +.5*(1-q)*(Gamma*q)**2/(1+Gamma*q)
-            Sum = Sum + de1[j] * (e1[j] - eps) * CC / Ee**2 * nph / eps * Fq
+        # if emax <= emin:
+        #     print(f"Invalid energy range: emin={emin}, emax={emax}")
 
+        cte = (2 * np.pi * re**2 * me**2 * c**5) / Ee**2
+
+        def f(q):
+            return 2*q * np.log(q) + (1+2*q)*(1-q) + (1-q)*(gamma*q)**2 / (2*(1+gamma*q))
+
+        Sum = 0
+        for i in range(np.size(de)):
+            q = energies[i] / (gamma * (Ee - energies[i]))
+            Sum = Sum + de[i]*(energies[i]-eps) *cte * (nph/eps) * f(q)
+        
         return Sum
-    
+        
     deps = np.diff(eps)
-    SSum=0.
     
-    tm1 =  np.zeros_like(Ee)
     SSum = np.zeros_like(Ee)
-    print('\n\n Calculating IC rate (accounting for KN regime):\n')
-    for j in range(np.size(tm1)):
+    
+    for j in range(np.size(SSum)):
         for i in range(np.size(deps)):
-            SSum[j] = SSum[j] + F(eps[i],nph[i],Ee[j]) * deps[i] 
-            #print('eps = %1.3e eV'%(eps/eV))
+            SSum[j] = SSum[j] + ( deps[i] * integral_right(Ee[j], eps[i], nph[i]) )
+            
+    rate = (1 / Ee) * SSum
     
     
-    tm1 = (1. / Ee) * SSum
+    if np.any(nph <= 0):
+        print("Warning: Some photon densities are zero or negative")
+
     
-    return tm1
-
-
-
-
-
-
-
+    return rate
 
 
 def rate_p_p(n, E):
