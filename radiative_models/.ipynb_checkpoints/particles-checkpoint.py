@@ -72,7 +72,7 @@ nph_OUV = n_OUV(eps_OUV) # [cm^{-3} erg^{-1}]
 
 ## X-Rays
 
-eps_x = np.logspace(np.log10(2 * keV), np.log10(200 * keV), num=100)  # [eV to MeV]
+eps_x = np.logspace(np.log10(2 * keV), np.log10(200 * keV), num=100)
 
 def n_Xrays(eps):
     """Isotropic photon field density [cm-3 erg-1].
@@ -170,6 +170,7 @@ def rate_p_p(n, E):
     k_pp = 0.5 # Total inelasticity of the process
     
     return n*c*sigma_pp*k_pp
+
 
 def rate_p_gamma(Ep, eps, nph):
     Eth_pg = 145 * 1e6 * eV
