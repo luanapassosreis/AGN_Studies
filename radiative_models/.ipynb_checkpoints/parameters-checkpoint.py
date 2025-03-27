@@ -11,7 +11,7 @@ cgs units or normalized regarding M_sun, R_s & Mdot_Edd
 # =========== Energy [ergs] ================== 
 # ============================================
 
-Ep = np.logspace(6, 17.72, num=100) * eV  # [2,20]
+Ep = np.logspace(2, 17.72, num=100) * eV  # [2,20]
 Ee = np.logspace(2, 14.46, num=100) * eV  # [2,15]
 
 Ep_drift = np.logspace(17.72, 20, num=50) * eV  # 5.23e+17 = 10^17.72

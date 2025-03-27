@@ -124,13 +124,20 @@ def rate_IC(Ee, eps, nph):
         gamma = 4 * eps * Ee / mec2**2
         emin = eps
         emax = (gamma * Ee) / (1 + gamma)
-        dlog_e = 0.01  # logarithmic step size in energy
-        log_e = np.arange(np.log10(emin/eV), np.log10(emax/eV), dlog_e) #log(E/eV) photon energy array in log
-        energies = 10**log_e * eV  # photon energy array in linear energy units (eV)
-        de = np.diff(energies)  # small energy differences
         
-        # if emax <= emin:
-        #     print(f"Invalid energy range: emin={emin}, emax={emax}")
+        ## masking condition: If emax < emin, return zero
+        if emax < emin:
+            return 0
+        
+        dlog_e = 0.05  # logarithmic step size in energy
+        log_e = np.arange(np.log10(emin/eV), np.log10(emax/eV), dlog_e) #log(E/eV) photon energy array in log
+        
+        ## to avoid issues if the range is too small
+        if log_e.size == 0:
+            return 0
+        
+        energies = 10**log_e * eV  # convert back to linear scale
+        de = np.diff(energies)  # compute small energy difference
 
         cte = (2 * np.pi * re**2 * me**2 * c**5) / Ee**2
 
@@ -140,7 +147,14 @@ def rate_IC(Ee, eps, nph):
         Sum = 0
         for i in range(np.size(de)):
             q = energies[i] / (gamma * (Ee - energies[i]))
-            Sum = Sum + de[i]*(energies[i]-eps) *cte * (nph/eps) * f(q)
+            ## q must be within [0,1] to ensure physical validity of the photon energy range
+            ## q > 1: energy transferred to the photon would exceed the electron's energy
+            ## q = 0: photon energy is negligible compared to the electron energy
+            
+            if not (0 <= q <= 1):  # Ensure valid q range
+                continue
+                
+            Sum += de[i] * (energies[i] - eps) * cte * (nph/eps) * f(q)
         
         return Sum
         
@@ -150,7 +164,7 @@ def rate_IC(Ee, eps, nph):
     
     for j in range(np.size(SSum)):
         for i in range(np.size(deps)):
-            SSum[j] = SSum[j] + ( deps[i] * integral_right(Ee[j], eps[i], nph[i]) )
+            SSum[j] += deps[i] * integral_right(Ee[j], eps[i], nph[i])
             
     rate = (1 / Ee) * SSum
     
@@ -160,6 +174,46 @@ def rate_IC(Ee, eps, nph):
 
     
     return rate
+
+
+
+def rate_IC_Juan(Ee,eps,nph):
+    
+    def F(eps,nph,Ee):
+        Gamma = 4. * eps * Ee / mec2**2
+        e1min = eps
+        e1max = Gamma * Ee / (1. + Gamma)
+        dle1 = 0.01
+        le1 = np.arange(np.log10(e1min/eV), np.log10(e1max/eV), dle1) #log(E/eV)
+        e1 = 10**le1 * eV
+        de1 = np.diff(e1)
+        
+        CC =  2 * np.pi * re**2 * me**2 * c**5 
+        
+        Sum = 0.
+        for j in range(np.size(de1)):        
+            q = e1[j]/(Gamma*(Ee-e1[j]))
+            Fq = 2.*q* np.log(q) + (1+2*q)*(1-q) +.5*(1-q)*(Gamma*q)**2/(1+Gamma*q)
+            Sum = Sum + de1[j] * (e1[j] - eps) * CC / Ee**2 * nph / eps * Fq
+
+        return Sum
+    
+    deps = np.diff(eps)
+    SSum=0.
+    
+    tm1 =  np.zeros_like(Ee)
+    SSum = np.zeros_like(Ee)
+    print('\n\n Calculating IC rate (accounting for KN regime):\n')
+    for j in range(np.size(tm1)):
+        for i in range(np.size(deps)):
+            SSum[j] = SSum[j] + F(eps[i],nph[i],Ee[j]) * deps[i] 
+            #print('eps = %1.3e eV'%(eps/eV))
+    
+    
+    tm1 = (1. / Ee) * SSum
+    
+    return tm1
+
 
 
 def rate_p_p(n, E):
@@ -240,28 +294,8 @@ def rate_pg_cool(Ep, eps, nph):
     return c / (2 * gp**2) * Ieps 
 
 
-def rate_bethe_heitler(Ep, eps, nph):
-    
-    gp = Ep / mpc2
-    deps = np.diff(eps)
-    dleps = np.log10( eps[1] / eps[0] )
-    Ieps = np.zeros_like(gp) + small
-    
-    ## de dn_x/de e^2 
-    ## e sigma e de
-    
-    
-    
-    return c / (2 * gp**2) * Ieps
-
-
-
-#### maybe wrong
-
-
-# Define cross-section function for pγ interactions
 def sigma_pg(eps_prime):
-    """ Cross-section function for pγ interactions. """
+    """ Cross-section function for pgamma interactions. """
     sigma1 = 340 * 1e-6 * barn  # Peak cross-section
     K1 = 0.2  
     sigma2 = 120 * 1e-6 * barn
@@ -275,55 +309,47 @@ def sigma_pg(eps_prime):
         return (sigma1 * K1 * 0.5 * ((500 * MeV)**2 - (200 * MeV)**2) +
                 sigma2 * K2 * 0.5 * (eps_prime**2 - (500 * MeV)**2))
 
-# Function to integrate over the cross-section
-def integrate_sigma(eps_prime_min, eps_prime_max):
-    """ Integrates eps' * sigma_pg(eps') from eps_prime_min to eps_prime_max """
-    return quad(lambda eps_prime: eps_prime * sigma_pg(eps_prime), eps_prime_min, eps_prime_max, limit=100)[0]
 
-# Function to compute the inverse bremsstrahlung cooling time
-def rate_bth_cool(Ep, eps, nph):
-    """
-    Computes the inverse bremsstrahlung cooling rate.
-
-    Parameters:
-    Ep : array-like
-        Proton energy in erg.
-    eps : array-like
-        Photon energy array in erg.
-    nph : array-like
-        Photon number density per energy bin.
-
-    Returns:
-    Array with cooling rate values.
-    """
+def rate_bethe_heitler(Ep, eps, nph):
+    gp = Ep / mpc2   # gamma factor for the proton
+    eps_bth = 2 * MeV  # energy threshold for pair production (2 MeV)
     
-    eps_th = 2 * MeV
+    e_min = eps_bth / (2 * gp)
+    e_max = np.full_like(Ep, np.max(eps))  # maximum photon energy available in the field
     
-    gp = Ep / mpc2  # Proton Lorentz factor
-    deps = np.diff(eps)
-    dleps = np.log10(eps[1] / eps[0])
+    dlog_e = 0.05  # logarithmic step size in energy
+    log_e = np.arange(np.log10(e_min/eV), np.log10(e_max/eV), dlog_e)  # log(E/eV) photon energy array in log
+    
+    energies = 10**log_e * eV  # convert back to linear scale
+    de = np.diff(energies)  # compute small energy difference
 
-    Ieps = np.zeros_like(gp) + 1e-30  # Avoid division by zero
-
-    for i in range(len(gp)):
-        eps_inf = eps_th / (2 * gp[i])
+    Ieps = np.zeros_like(gp)  # for cross-section integral
+    
+    for i in range(np.size(de)):
+        epsilon_prime = energies[i]
+        sigma_value = sigma_pg(epsilon_prime)
         
-        if eps_inf >= eps[0] and eps_inf < eps[-1]:
-            j0 = int(math.ceil(np.log10(eps_inf / eps[0]) / dleps))
-            for j in range(j0, len(deps)):
-                eps_prime_min = eps_th
-                eps_prime_max = 2 * gp[i] * eps[j]
-                
-                # Compute the integral of eps' * sigma_pg(eps') over the given range
-                integral_sigma = integrate_sigma(eps_prime_min, eps_prime_max)
-
-                Ieps[i] += deps[j] * nph[j] / (eps[j]**2) * integral_sigma
-
-    return c / (gp**2) * Ieps
-
-
-
-
+        ## integrate the function over epsilon'
+        e_prime_min = eps_bth
+        e_prime_max = 2 * gp * energies[i]
+        
+        ## second integral over epsilon'
+        e_prime_range = np.linspace(e_prime_min, e_prime_max, 100)
+        sigma_values = np.array([sigma_pg(e_prime) for e_prime in e_prime_range])
+        
+        integral_eps_prime = np.trapz(sigma_values * e_prime_range, e_prime_range)  # trapezoidal integration
+        
+        ## integration over photon field (dn_x/de * e^-2)
+        photon_field_integral = np.trapz(nph * energies[i]**(-2), eps)
+        
+        ## combine both integrals
+        Ieps[i] = photon_field_integral * integral_eps_prime
+        
+    rate = c / (gp**2) * Ieps
+    
+    return rate
+    
+    
 
 
 
